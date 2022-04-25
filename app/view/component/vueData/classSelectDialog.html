@@ -1,0 +1,87 @@
+<script type="text/x-template" id="classSelectDialog">
+  <v-dialog v-model="classSelectDialog_shown" scrollable max-width="500px">
+    <v-card>
+      <v-card-title>
+        <span>{{ classSelectDialog_title }}</span>
+        <v-text-field
+          label="搜索"
+          clearable
+          dense
+          v-model="classSelectDialog_searchText"
+          hide-details
+          prepend-inner-icon="mdi-text-search"
+          class="ma-2 pa-0"
+          outlined
+        ></v-text-field>
+      </v-card-title>
+      <v-divider />
+      <div class="list">
+        <v-list rounded>
+          <v-list-item-group color="primary" active-class>
+            <v-list-item v-for="(item, i) in classSelectDialog_dataList_" :key="item.value" @click="clickListItem(item,i)">
+              <template #default="{ active }">
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.text" />
+                </v-list-item-content>
+              </template>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </div>
+      <v-divider />
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="primary" text @click="close">取消</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</script>
+
+<script>
+  Vue.component("classSelectDialog", {
+    template: "#classSelectDialog",
+    vueUi: 'classSelectDialog',
+    mixins: [ window.jianghuMixins ],
+    data: () => (window.vueData),
+    computed: {
+      classSelectDialog_dataList_() {
+        const classSelectDialog_searchText = this.classSelectDialog_searchText && this.classSelectDialog_searchText.toLowerCase();
+        const list = classSelectDialog_searchText
+          ? this.classSelectDialog_dataList
+            .slice()
+            .filter(
+              (v) =>
+                v.text && 
+                (
+                  v.text.toLowerCase().includes(classSelectDialog_searchText)
+                  ||
+                  v.text.includes(classSelectDialog_searchText)
+                )
+            )
+          : this.classSelectDialog_dataList.slice();
+        return list;   
+      },
+    },
+    async created() {
+      window.$vueUi.classSelectDialog = this;
+    },
+    methods: {
+      clickListItem(item, index) {
+        this.searchClassId = item.value
+        this.close();
+      },
+      close() {
+        this.classSelectDialog_shown = false;
+      },
+      test() {
+        window.vtoast.success("这是来自classSelectDialog 组件的test方法");
+      },
+    },
+  });
+</script>
+<style>
+  .list {
+    max-height: 700px;
+    overflow-y: scroll;
+  }
+</style>
