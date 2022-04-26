@@ -34,7 +34,7 @@ class StudentService extends Service {
 
   async appendStudentInfoToUserInfo() {
     const studentInfo = await this.app
-      .jianghuKnex("student_basic")
+      .jianghuKnex("student")
       .where({ studentId: this.ctx.userInfo.user.userId })
       .first();
     this.ctx.userInfo.studentInfo = studentInfo || { classId: null };
@@ -42,11 +42,11 @@ class StudentService extends Service {
 
   async selectStudentList() {
     const studentInfo = await this.app
-      .jianghuKnex("student_basic")
+      .jianghuKnex("student")
       .where({ studentId: this.ctx.userInfo.user.userId })
       .first();
     const studentList = await this.app
-      .jianghuKnex("student_basic")
+      .jianghuKnex("student")
       .where({ classId: studentInfo.classId })
       .select();
 
