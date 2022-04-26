@@ -9,7 +9,7 @@
     <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
 
       <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-        <v-btn color="success" small dark class="elevation-0 mr-2" @click="handleTableButton({ text: '新增', buttonType: 'add' }, null)">新增</v-btn>
+        <v-btn color="success" small dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新增</v-btn>
         <span class="body-2">共{{ tableData.length }}条记录</span>
       </v-col>
 
@@ -25,16 +25,18 @@
       </v-col>
 
     </v-row>
-    <v-data-table fixed-header
-                  :headers="headers"
-                  :items="tableData"
-                  :search="searchInput"
-                  :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
-                  :items-per-page="20"
-                mobile-breakpoint="0"
-                  :loading="isTableLoading"
-                  checkbox-color="success"
-                  class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+    <v-data-table
+      fixed-header
+      :headers="headers"
+      :items="tableData"
+      :search="searchInput"
+      :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+      :items-per-page="20"
+      mobile-breakpoint="0"
+      :loading="isTableLoading"
+      checkbox-color="success"
+      class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+
       <template v-slot:item.gender="{ item }">
         {{ getConstantCollectionItemText('gender', item.gender) }}
       </template>
@@ -42,8 +44,11 @@
         {{ getConstantCollectionItemText('level', item.level) }}
       </template>
       <template v-slot:item.action="{ item }">
-        <v-btn small class="mr-2" :class="tableButton.color" v-for="tableButton of tableButtonList" @click="handleTableButton(tableButton, item)">
-          {{ tableButton.text }}
+        <v-btn small class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
+          修改
+        </v-btn>
+        <v-btn small class="mr-2 error" @click="doUiAction('deleteItem')">
+          删除
         </v-btn>
       </template>
     </v-data-table>
@@ -95,7 +100,7 @@
         </v-col>
       </v-row>
       <v-row class="justify-end pr-6">
-        <v-btn color="success" small @click="saveInfo" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+        <v-btn color="success" small @click="doUiAction('updateItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
         <v-btn class="ml-2" small @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
       </v-row>
     </v-form>
@@ -106,16 +111,10 @@
 {% endblock %}
 
 {% block vue_body %}
-
-{% include 'layout/jhLayout.html' %}
-{% include 'common/resetTableMaxHeight.html' %}
+{% include 'common/uiAction.html' %}
 
 <script type="module">
-new Vue({
-  el: '#app',
-  template: '#app-template',
-  vuetify: new Vuetify(),
-  data: () => ({
+  window.registerData({
     // 表格相关数据
     isFormValid: true,
     requireRules: [
@@ -155,11 +154,20 @@ new Vue({
 
     currentClickButton: {title: '新增', action: 'add'},
     editItem: {},
-    tableButtonList: [
-      {text: '修改', buttonType: 'edit', color: 'success',},
-      {text: '删除', buttonType: 'delete', color: 'error',},
-    ],
-  }),
+    dialogSaveInfoAction: "",
+    editId: null
+  })
+</script>
+{% include 'layout/jhLayout.html' %}
+{% include 'common/resetTableMaxHeight.html' %}
+
+<script type="module">
+new Vue({
+  el: '#app',
+  template: '#app-template',
+  vuetify: new Vuetify(),
+  mixins: [window.jianghuMixins],
+  data: () => window.vueData,
   computed: {
     isMobile() {
       return window.innerWidth < 600;
@@ -175,15 +183,18 @@ new Vue({
     },
   },
   watch: {},
-  async created() {
-    await this.getTableData();
+  mounted() {
+    this.doUiAction('refreshTableData');
   },
-  mounted() {},
   methods: {
+    // mounted
+    async startLoadingTable() {
+      this.isTableLoading = true;
+    },
     /**
      * 获取表格数据
      */
-    async getTableData() {
+    async refreshTableData() {
       this.isTableLoading = true;
       const result = await window.jianghuAxios({
         data: {
@@ -201,68 +212,34 @@ new Vue({
       this.isTableLoading = false;
     },
 
-    /**
-     * 点击表格数据按钮
-     */
-    async handleTableButton(button, item) {
-      const buttonType = button.buttonType;
-      switch (buttonType) {
-        case 'edit':
-          this.currentClickButton = {action: 'edit', title: '修改'};
-          this.editItem = {...item};
-          this.isEditDrawerShow = true;
-          break;
-        case 'add':
-          this.currentClickButton = {action: 'add', title: '新增'};
-          this.editItem = {};
-          this.isEditDrawerShow = true;
-          break;
-        case 'delete':
-          this.editItem = {...item};
-          await this.deleteStudent();
-          break;
-      }
+    // mounted
+    async stopLoadingTable() {
+      this.isTableLoading = false;
     },
-    /**
-     * 删除学生
-     */
-    async deleteStudent() {
-      const dialogDone = await window.confirmDialog({ title: '删除', content: '确定删除吗？'});
-      if (!dialogDone) {
-        return false;
-      }
-      const { id } = this.computedEditItem;
-      await window.vtoast.loading("删除学生");
-      await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'frontendDemo02',
-            actionId: 'deleteItem',
-            actionData: {},
-            where: { id: id }
-          }
-        }
-      });
-      await window.vtoast.success("删除学生成功");
-      await this.getTableData();
+
+    // mounted
+    async clearItemData() {
+      this.editItem = {};
     },
-    /**
-     * 保存数据
-     */
-    async saveInfo() {
-      if (this.currentClickButton.action === 'add') {
-        await this.insertStudent();
-      }
-      if (this.currentClickButton.action === 'edit') {
-        await this.updateStudent();
-      }
+
+    // mounted
+    async openCreateDialog() {
+      this.currentClickButton = { action: "add", title: "新增" };
+      this.isEditDrawerShow = true;
+      this.dialogSaveInfoAction = "createItem";
     },
-    /**
-     * 新增学生
-     */
-    async insertStudent() {
+
+    // createItem
+    async confirmCreateItemDialog() {
+      return await window.confirmDialog({ title: "新增", content: "确定新增吗？" });
+    },
+
+    async prepareCreateItem() {
+      delete this.computedEditItem.id;
+    },
+
+    async doCreateItem() {
       if (await window.confirmDialog({ title: '新增', content: '确定新增吗？'})) {
-        delete this.computedEditItem.id;
         await window.vtoast.loading("新增学生");
         await window.jianghuAxios({
           data: {
@@ -274,17 +251,39 @@ new Vue({
           }
         })
         await window.vtoast.success("新增学生成功");
-        this.isEditDrawerShow = false;
-        await this.getTableData();
       }
     },
+
+    async closeDrawerShow() {
+      this.isEditDrawerShow = false;
+    },
+
+    // startUpdateItem
+    async prepareItemData(item) {
+      this.editItem = { ...item };
+    },
+
+    // mounted
+    async openUpdateDialog() {
+      this.currentClickButton = { action: "add", title: "修改" };
+      this.isEditDrawerShow = true;
+      this.dialogSaveInfoAction = "updateItem";
+    },
+
+    // updateItem
+    async confirmUpdateItemDialog() {
+      return await window.confirmDialog({ title: "修改", content: "确定修改吗？" });
+    },
+
+    async prepareUpdateItem() {
+      this.editId = this.computedEditItem.id;
+      delete this.computedEditItem.id;
+    },
+
     /**
      * 保存学生
      */
-    async updateStudent() {
-      if (await window.confirmDialog({ title: '修改', content: '确定修改吗？'})) {
-        const id = this.computedEditItem.id;
-        delete this.computedEditItem.id;
+    async doUpdateItem() {
         await window.vtoast.loading("修改学生");
         await window.jianghuAxios({
           data: {
@@ -292,18 +291,42 @@ new Vue({
               pageId: 'frontendDemo02',
               actionId: 'updateItem',
               actionData: this.computedEditItem,
-              where: {id: id}
+              where: {id: this.editId}
             }
           }
         })
         await window.vtoast.success("修改学生成功");
-        this.isEditDrawerShow = false;
-        await this.getTableData();
-      }
     },
+
+    // updateItem
+    async confirmDeleteItemDialog() {
+      return await window.confirmDialog({ title: "删除", content: "确定删除吗？" });
+    },
+
+    /**
+     * 删除学生
+     */
+    async doDeleteItem() {
+      const {id} = this.computedEditItem;
+      await window.vtoast.loading("删除学生");
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'frontendDemo02',
+            actionId: 'deleteItem',
+            actionData: {},
+            where: {id: id}
+          }
+        }
+      });
+      await window.vtoast.success("删除学生成功");
+    },
+
     getConstantCollectionItemText(key, _value) {
-      const constantCollectionItemFind = this.constantCollection[key].find(({value}) => value === _value);
-      if(constantCollectionItemFind) {
+      const constantCollectionItemFind = this.constantCollection[key].find(
+              ({ value }) => value === _value
+      );
+      if (constantCollectionItemFind) {
         return constantCollectionItemFind.text;
       }
       return _value;
