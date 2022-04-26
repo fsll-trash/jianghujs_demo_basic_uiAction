@@ -191,9 +191,8 @@ new Vue({
     async startLoadingTable() {
       this.isTableLoading = true;
     },
-    /**
-     * 获取表格数据
-     */
+
+    //refreshTableData
     async refreshTableData() {
       this.isTableLoading = true;
       const result = await window.jianghuAxios({
@@ -217,12 +216,12 @@ new Vue({
       this.isTableLoading = false;
     },
 
-    // mounted
+    // startCreateItem
     async clearItemData() {
       this.editItem = {};
     },
 
-    // mounted
+    // startCreateItem
     async openCreateDialog() {
       this.currentClickButton = { action: "add", title: "新增" };
       this.isEditDrawerShow = true;
@@ -234,10 +233,12 @@ new Vue({
       return await window.confirmDialog({ title: "新增", content: "确定新增吗？" });
     },
 
+    // createItem
     async prepareCreateItem() {
       delete this.computedEditItem.id;
     },
 
+    // createItem
     async doCreateItem() {
       if (await window.confirmDialog({ title: '新增', content: '确定新增吗？'})) {
         await window.vtoast.loading("新增学生");
@@ -254,6 +255,7 @@ new Vue({
       }
     },
 
+    // createItem/updateItem
     async closeDrawerShow() {
       this.isEditDrawerShow = false;
     },
@@ -263,7 +265,7 @@ new Vue({
       this.editItem = { ...item };
     },
 
-    // mounted
+    // startUpdateItem
     async openUpdateDialog() {
       this.currentClickButton = { action: "add", title: "修改" };
       this.isEditDrawerShow = true;
@@ -275,14 +277,13 @@ new Vue({
       return await window.confirmDialog({ title: "修改", content: "确定修改吗？" });
     },
 
+    // updateItem
     async prepareUpdateItem() {
       this.editId = this.computedEditItem.id;
       delete this.computedEditItem.id;
     },
 
-    /**
-     * 保存学生
-     */
+    // updateItem
     async doUpdateItem() {
         await window.vtoast.loading("修改学生");
         await window.jianghuAxios({
@@ -298,14 +299,12 @@ new Vue({
         await window.vtoast.success("修改学生成功");
     },
 
-    // updateItem
+    // deleteItem
     async confirmDeleteItemDialog() {
       return await window.confirmDialog({ title: "删除", content: "确定删除吗？" });
     },
 
-    /**
-     * 删除学生
-     */
+    // deleteItem
     async doDeleteItem() {
       const {id} = this.computedEditItem;
       await window.vtoast.loading("删除学生");
