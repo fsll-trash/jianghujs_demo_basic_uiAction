@@ -230,7 +230,16 @@ new Vue({
           }
         }
       });
-
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'allPage',
+            actionId: 'getConstantList',
+            actionData: {},
+            where: {},
+          }
+        }
+      })
       this.tableDataFromBackend = rows;
       this.isTableLoading = false;
     },
