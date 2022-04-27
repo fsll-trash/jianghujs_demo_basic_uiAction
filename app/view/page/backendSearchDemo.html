@@ -19,7 +19,7 @@
           class="elevation-0"
           color="success"
           dark
-          @click="getTableData"
+          @click="refreshTableData"
       >
         查询
       </v-btn>
@@ -30,7 +30,7 @@
   <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
 
     <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-      <v-btn color="success" small dark class="elevation-0 mr-2" @click="handleTableButton({ text: '新增', buttonType: 'add' }, null)">新增</v-btn>
+      <v-btn color="success" small dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem', null)">新增</v-btn>
       <span class="body-2">共{{ tableData.length }}条记录</span>
     </v-col>
 
@@ -63,8 +63,11 @@
       {{ getConstantCollectionItemText('level', item.level) }}
     </template>
     <template v-slot:item.action="{ item }">
-      <v-btn small class="mr-2" :class="tableButton.color" v-for="tableButton of tableButtonList" @click="handleTableButton(tableButton, item)">
-        {{ tableButton.text }}
+      <v-btn small class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
+        修改
+      </v-btn>
+      <v-btn small class="mr-2 error" @click="doUiAction('deleteItem', item)">
+        删除
       </v-btn>
     </template>
   </v-data-table>
@@ -116,7 +119,7 @@
       </v-col>
     </v-row>
     <v-row class="justify-end pr-6">
-      <v-btn color="success" small @click="saveInfo" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+      <v-btn color="success" small @click="doUiAction(dialogSaveInfoAction)" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
       <v-btn class="ml-2" small @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
     </v-row>
   </v-form>
@@ -127,16 +130,9 @@
 {% endblock %}
 
 {% block vue_body %}
-
-{% include 'layout/jhLayout.html' %}
-{% include 'common/resetTableMaxHeight.html' %}
-
+{% include 'common/uiAction.html' %}
 <script type="module">
-new Vue({
-  el: '#app',
-  template: '#app-template',
-  vuetify: new Vuetify(),
-  data: () => ({
+  window.registerData({
     // 表格相关数据
     isFormValid: true,
     requireRules: [
@@ -181,11 +177,20 @@ new Vue({
 
     currentClickButton: {title: '新增', action: 'add'},
     editItem: {},
-    tableButtonList: [
-      {text: '修改', buttonType: 'edit', color: 'success',},
-      {text: '删除', buttonType: 'delete', color: 'error',},
-    ],
-  }),
+    dialogSaveInfoAction: ''
+  })
+</script>
+
+{% include 'layout/jhLayout.html' %}
+{% include 'common/resetTableMaxHeight.html' %}
+
+<script type="module">
+new Vue({
+  el: '#app',
+  template: '#app-template',
+  vuetify: new Vuetify(),
+  mixins: [window.jianghuMixins],
+  data: () => window.vueData,
   computed: {
     isMobile() {
       return window.innerWidth < 600;
@@ -202,14 +207,15 @@ new Vue({
   },
   watch: {},
   async created() {
-    await this.getTableData();
   },
-  mounted() {},
+  mounted() {
+    this.refreshTableData();
+  },
   methods: {
     /**
      * 获取表格数据
      */
-    async getTableData() {
+    async refreshTableData() {
       this.isTableLoading = true;
       const serverSearchInput = _.pickBy(this.serverSearchInput, value=> !!value);
       const { data: { appData: { rows } } } = await window.jianghuAxios({
@@ -229,36 +235,76 @@ new Vue({
       this.isTableLoading = false;
     },
 
-    /**
-     * 点击表格数据按钮
-     */
-    async handleTableButton(button, item) {
-      const buttonType = button.buttonType;
-      switch (buttonType) {
-        case 'edit':
-          this.currentClickButton = {action: 'edit', title: '修改'};
-          this.editItem = {...item};
-          this.isEditDrawerShow = true;
-          break;
-        case 'add':
-          this.currentClickButton = {action: 'add', title: '新增'};
-          this.editItem = {};
-          this.isEditDrawerShow = true;
-          break;
-        case 'delete':
-          this.editItem = {...item};
-          await this.deleteStudent();
-          break;
-      }
+    async clearItemData() {
+      this.editItem = {};
     },
-    /**
-     * 删除学生
-     */
-    async deleteStudent() {
-      const dialogDone = await window.confirmDialog({ title: '删除', content: '确定删除吗？'});
-      if (!dialogDone) {
-        return false;
-      }
+
+    async openCreateDialog() {
+      this.currentClickButton = {action: 'add', title: '新增'};
+      this.isEditDrawerShow = true;
+      this.dialogSaveInfoAction = 'createItem';
+    },
+
+    async confirmCreateItemDialog() {
+      return window.confirmDialog({ title: '新增', content: '确定新增吗？'})
+    },
+
+    async doCreateItem() {
+      delete this.computedEditItem.id;
+      await window.vtoast.loading("新增学生");
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'backendSearchDemo',
+            actionId: 'insertItem',
+            actionData: this.computedEditItem
+          }
+        }
+      })
+      await window.vtoast.success("新增学生成功");
+    },
+
+    async closeDrawerShow() {
+      this.isEditDrawerShow = false;
+    },
+
+    async prepareItemData(item) {
+      this.editItem = {...item};
+    },
+
+    async openUpdateDialog() {
+      this.currentClickButton = {action: 'edit', title: '修改'};
+      this.isEditDrawerShow = true;
+      this.dialogSaveInfoAction = 'updateItem';
+    },
+
+    async confirmUpdateItemDialog() {
+      return window.confirmDialog({ title: '修改', content: '确定修改吗？'});
+    },
+
+    async doUpdateItem() {
+      const id = this.computedEditItem.id;
+      delete this.computedEditItem.id;
+      await window.vtoast.loading("修改学生");
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'backendSearchDemo',
+            actionId: 'updateItem',
+            actionData: this.computedEditItem,
+            where: {id: id}
+          }
+        }
+      })
+      await window.vtoast.success("修改学生成功");
+      this.isEditDrawerShow = false;
+    },
+
+    async confirmDeleteItemDialog() {
+      return window.confirmDialog({ title: '删除', content: '确定删除吗？'});
+    },
+
+    async doDeleteItem() {
       const { id } = this.computedEditItem;
       await window.vtoast.loading("删除学生");
       await window.jianghuAxios({
@@ -272,63 +318,8 @@ new Vue({
         }
       });
       await window.vtoast.success("删除学生成功");
-      await this.getTableData();
     },
-    /**
-     * 保存数据
-     */
-    async saveInfo() {
-      if (this.currentClickButton.action === 'add') {
-        await this.insertStudent();
-      }
-      if (this.currentClickButton.action === 'edit') {
-        await this.updateStudent();
-      }
-    },
-    /**
-     * 新增学生
-     */
-    async insertStudent() {
-      if (await window.confirmDialog({ title: '新增', content: '确定新增吗？'})) {
-        delete this.computedEditItem.id;
-        await window.vtoast.loading("新增学生");
-        await window.jianghuAxios({
-          data: {
-            appData: {
-              pageId: 'backendSearchDemo',
-              actionId: 'insertItem',
-              actionData: this.computedEditItem
-            }
-          }
-        })
-        await window.vtoast.success("新增学生成功");
-        this.isEditDrawerShow = false;
-        await this.getTableData();
-      }
-    },
-    /**
-     * 保存学生
-     */
-    async updateStudent() {
-      if (await window.confirmDialog({ title: '修改', content: '确定修改吗？'})) {
-        const id = this.computedEditItem.id;
-        delete this.computedEditItem.id;
-        await window.vtoast.loading("修改学生");
-        await window.jianghuAxios({
-          data: {
-            appData: {
-              pageId: 'backendSearchDemo',
-              actionId: 'updateItem',
-              actionData: this.computedEditItem,
-              where: {id: id}
-            }
-          }
-        })
-        await window.vtoast.success("修改学生成功");
-        this.isEditDrawerShow = false;
-        await this.getTableData();
-      }
-    },
+
     getConstantCollectionItemText(key, _value) {
       const constantCollectionItemFind = this.constantCollection[key].find(({value}) => value === _value);
       if(constantCollectionItemFind) {

@@ -47,7 +47,7 @@
         <v-btn small class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
           修改
         </v-btn>
-        <v-btn small class="mr-2 error" @click="doUiAction('deleteItem')">
+        <v-btn small class="mr-2 error" @click="doUiAction('deleteItem', item)">
           删除
         </v-btn>
       </template>
@@ -100,7 +100,7 @@
         </v-col>
       </v-row>
       <v-row class="justify-end pr-6">
-        <v-btn color="success" small @click="doUiAction('updateItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+        <v-btn color="success" small @click="doUiAction(dialogSaveInfoAction)" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
         <v-btn class="ml-2" small @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
       </v-row>
     </v-form>
@@ -240,19 +240,17 @@ new Vue({
 
     // createItem
     async doCreateItem() {
-      if (await window.confirmDialog({ title: '新增', content: '确定新增吗？'})) {
-        await window.vtoast.loading("新增学生");
-        await window.jianghuAxios({
-          data: {
-            appData: {
-              pageId: 'frontendDemo02',
-              actionId: 'insertItem',
-              actionData: this.computedEditItem
-            }
+      await window.vtoast.loading("新增学生");
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'frontendDemo02',
+            actionId: 'insertItem',
+            actionData: this.computedEditItem
           }
-        })
-        await window.vtoast.success("新增学生成功");
-      }
+        }
+      })
+      await window.vtoast.success("新增学生成功");
     },
 
     // createItem/updateItem
@@ -285,6 +283,7 @@ new Vue({
 
     // updateItem
     async doUpdateItem() {
+      const {id} = this.computedEditItem;
         await window.vtoast.loading("修改学生");
         await window.jianghuAxios({
           data: {
