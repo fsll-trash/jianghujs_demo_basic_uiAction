@@ -1,0 +1,85 @@
+<!--uiAction.html start-->
+<!-- 注入 ui action 数据到页面中 -->
+<script>
+const excudeTimeout = async (timeout) => {
+  await new Promise((resolve, reject) => {
+    setTimeout(()=> {
+      resolve();
+    }, timeout)
+  });
+}
+(function () {
+
+  const uiActionList = JSON.parse(<$ uiActionList | dump | safe $>);
+
+  const uiActionMap = {};
+  uiActionList.forEach(({uiActionId, uiActionHook, uiActionConfig}) => {
+    const {before = [], after = []} = JSON.parse(uiActionHook || '{}');
+    const functionList = JSON.parse(uiActionConfig || '[]');
+    uiActionMap[uiActionId] = [
+      ...before,
+      ...functionList,
+      ...after,
+    ]
+  });
+
+  window.uiActionMap = uiActionMap;
+  window.$vueUi = {};
+  window.vueComputed = {}
+  window.vueData = {};
+
+  window.registerData = (data, computed) => {
+    Object.assign(window.vueData, data)
+    Object.assign(window.vueComputed, computed)
+  }
+
+  window.jianghuMixins = {
+    beforeCreate() {
+      if(this.$options.name) {
+        window.$vueUi[this.$options.name] = this;
+      }
+      Object.assign(window.vueData, this.$options.jhData)
+    },
+    methods: {
+      async doUiAction(actionName, functionParam) {
+        const actions = window.uiActionMap[actionName];
+        if (actions) {
+          for (let i = 0; i < actions.length; i++) {
+            const action = actions[i];
+            const param = { ...(action.functionParam || {}), ...(functionParam || {}) };
+            try {
+              let res = null;
+              if (action.vueUi) {
+                for (let index = 0; index < 15; index++) {
+                  if (window.$vueUi[action.vueUi]) {
+                    res = await window.$vueUi[action.vueUi][action.function](param);
+                    break;
+                  }
+                  await excudeTimeout(150);
+                  if (index === 14) {
+                    res = await window.$vueUi[action.vueUi][action.function](param);
+                  }
+                }
+              } else {
+                res = await this[action.function](param);
+              }
+              // 如果返回 false 则不往下执行 action
+              if (res === false) {
+                return;
+              }
+            } catch (error) {
+              console.warn(`action 异常, actionId: ${actionName} ${action.function}`)
+              console.log(error)
+            }
+
+          }
+        } else {
+          console.warn(`找不到对应的 ui action, actionId: ${actionName}`)
+        }
+      }
+    }
+  };
+
+})();
+</script>
+<!--uiAction.html end-->

@@ -294,7 +294,9 @@ window.registerData({
     vuetify: new Vuetify(),
     vueUi: 'root',
     mixins: [ window.jianghuMixins ],
+    // TODO 1. data: () => {},
     data: () => window.vueData,
+    // TODO 2. computed 代码优化
     computed: {
       isMobile() {
         return window.innerWidth < 600;
@@ -307,7 +309,7 @@ window.registerData({
     async created() {
     },
     mounted() {
-      this.doUiAction("refreshTableData", {});
+      this.doUiAction("refreshTableData");
     },
     methods: {
       // mounted
@@ -405,6 +407,7 @@ window.registerData({
         await window.vtoast.success("修改学生成功");
       },
 
+      // TODO 3. 协议化/配置化, 使用Minxi 把window.confirmDialog 包一下
       // deleteItem
       async confirmDeleteItemDialog() {
         return await window.confirmDialog({ title: "删除", content: "确定删除吗？" });
@@ -429,6 +432,7 @@ window.registerData({
       /**
        * 保存数据
        */
+      // TODO 4. 优化判断逻辑
       async saveInfo() {
         if (this.currentClickButton.action === "add") {
           await this.doUiAction("createItem", {});
