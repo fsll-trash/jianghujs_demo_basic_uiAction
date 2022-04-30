@@ -40,7 +40,7 @@
 <script>
   Vue.component("classSelectDialog", {
     template: "#classSelectDialog",
-    vueUi: 'classSelectDialog',
+    vueComponent: 'classSelectDialog',
     mixins: [ window.jianghuMixins ],
     data: () => (window.vueData),
     computed: {
@@ -61,9 +61,6 @@
           : this.classSelectDialog_dataList.slice();
         return list;   
       },
-    },
-    async created() {
-      window.$vueUi.classSelectDialog = this;
     },
     methods: {
       clickListItem({ item, index }) {
