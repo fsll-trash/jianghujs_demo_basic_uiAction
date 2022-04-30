@@ -51,7 +51,7 @@
         small
         dark
         class="elevation-0 mr-2"
-        @click="doUiAction('refreshTableData')"
+        @click="doUiAction('refreshTableData', {})"
         >查询</v-btn
       >
     </v-row>
@@ -78,7 +78,7 @@
           class="mr-2"
           :class="tableButton.color"
           v-for="tableButton of tableButtonList"
-          @click="doUiAction(tableButton.uiAction, item)"
+          @click="doUiAction(tableButton.uiAction, {item})"
         >
           {{ tableButton.text }}
         </v-btn>
@@ -214,7 +214,7 @@
         <v-btn
           color="success"
           small
-          @click="doUiAction(dialogSaveInfoAction)"
+          @click="doUiAction(dialogSaveInfoAction, {})"
           :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
           :class="{'mb-2': isMobile, 'mr-4': isMobile}"
           >保存</v-btn
@@ -363,7 +363,7 @@
     async created() {
     },
     mounted() {
-      this.doUiAction("refreshTableData");
+      this.doUiAction("refreshTableData", {});
     },
     methods: {
       // mounted
@@ -434,7 +434,7 @@
       },
 
       // startUpdateItem
-      async prepareItemData(item) {
+      async prepareItemData({item}) {
         this.editItem = { ...item };
       },
       async openUpdateDialog() {
@@ -491,10 +491,10 @@
        */
       async saveInfo() {
         if (this.currentClickButton.action === "add") {
-          await this.doUiAction("createItem");
+          await this.doUiAction("createItem", {});
         }
         if (this.currentClickButton.action === "edit") {
-          await this.doUiAction("updateItem");
+          await this.doUiAction("updateItem", {});
         }
       },
 

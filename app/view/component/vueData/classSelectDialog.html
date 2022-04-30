@@ -18,7 +18,7 @@
       <div class="list">
         <v-list rounded>
           <v-list-item-group color="primary" active-class>
-            <v-list-item v-for="(item, i) in classSelectDialog_dataList_" :key="item.value" @click="clickListItem(item,i)">
+            <v-list-item v-for="(item, index) in classSelectDialog_dataList_" :key="item.value" @click="clickListItem({ item, index})">
               <template #default="{ active }">
                 <v-list-item-content>
                   <v-list-item-title v-text="item.text" />
@@ -66,15 +66,15 @@
       window.$vueUi.classSelectDialog = this;
     },
     methods: {
-      clickListItem(item, index) {
+      clickListItem({ item, index }) {
         this.searchClassId = item.value
         this.close();
       },
       close() {
         this.classSelectDialog_shown = false;
       },
-      test() {
-        window.vtoast.success("这是来自classSelectDialog 组件的test方法 的消息");
+      test({ content }) {
+        window.vtoast.success(content);
       },
     },
   });
