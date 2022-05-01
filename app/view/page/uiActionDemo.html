@@ -44,10 +44,10 @@
         {{ getConstantCollectionItemText('level', item.level) }}
       </template>
       <template v-slot:item.action="{ item }">
-        <v-btn small class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
+        <v-btn small class="mr-2 success" @click="doUiAction('startUpdateItem', {item})">
           修改
         </v-btn>
-        <v-btn small class="mr-2 error" @click="doUiAction('deleteItem', item)">
+        <v-btn small class="mr-2 error" @click="doUiAction('deleteItem', {item})">
           删除
         </v-btn>
       </template>
@@ -100,7 +100,8 @@
         </v-col>
       </v-row>
       <v-row class="justify-end pr-6">
-        <v-btn color="success" small @click="doUiAction(dialogSaveInfoAction)" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+        <v-btn v-if="editItem.id" color="success" small @click="doUiAction('updateItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">修改</v-btn>
+        <v-btn v-if="!editItem.id" small @click="doUiAction('insertItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">创建</v-btn>
         <v-btn class="ml-2" small @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
       </v-row>
     </v-form>
@@ -152,8 +153,6 @@
     ],
 
     editItem: {},
-    dialogSaveInfoAction: "",
-    editId: null
   })
 </script>
 {% include 'layout/jhLayout.html' %}
@@ -175,9 +174,6 @@ new Vue({
         return this.tableDataFromBackend;
       }
       return this.tableDataFromBackend.filter(({gender}) => gender === this.currentTableGenderType);
-    },
-    computedEditItem() {
-      return this.editItem;
     },
   },
   watch: {},
@@ -213,7 +209,6 @@ new Vue({
     // startCreateItem
     async openCreateDialog() {
       this.isEditDrawerShow = true;
-      this.dialogSaveInfoAction = "createItem";
     },
 
     // createItem
@@ -223,7 +218,7 @@ new Vue({
 
     // createItem
     async prepareCreateItem() {
-      delete this.computedEditItem.id;
+      delete this.editItem.id;
     },
 
     // createItem
@@ -234,7 +229,7 @@ new Vue({
           appData: {
             pageId: 'uiActionDemo',
             actionId: 'insertItem',
-            actionData: this.computedEditItem
+            actionData: this.editItem
           }
         }
       })
@@ -252,9 +247,9 @@ new Vue({
     },
 
     // startUpdateItem
-    async openUpdateDialog() {
+    async openUpdateDialog({ item }) {
       this.isEditDrawerShow = true;
-      this.dialogSaveInfoAction = "updateItem";
+      this.editItem = item;
     },
 
     // updateItem
@@ -263,22 +258,16 @@ new Vue({
     },
 
     // updateItem
-    async prepareUpdateItem() {
-      this.editId = this.computedEditItem.id;
-      delete this.computedEditItem.id;
-    },
-
-    // updateItem
     async doUpdateItem() {
-      const {id} = this.computedEditItem;
+      const {id, ...actionData} = this.editItem;
         await window.vtoast.loading("修改学生");
         await window.jianghuAxios({
           data: {
             appData: {
               pageId: 'uiActionDemo',
               actionId: 'updateItem',
-              actionData: this.computedEditItem,
-              where: {id: this.editId}
+              actionData: actionData,
+              where: {id}
             }
           }
         })
@@ -292,7 +281,7 @@ new Vue({
 
     // deleteItem
     async doDeleteItem() {
-      const {id} = this.computedEditItem;
+      const {id} = this.editItem;
       await window.vtoast.loading("删除学生");
       await window.jianghuAxios({
         data: {
