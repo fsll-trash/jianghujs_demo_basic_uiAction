@@ -184,8 +184,8 @@ new Vue({
   el: '#app',
   template: '#app-template',
   vuetify: new Vuetify(),
-  mixins: [window.jianghuMixins],
-  data: () => window.vueData,
+  mixins: [window.jianghuUiActionMixins],
+  data: window.vueData,
   computed: {
     isMobile() {
       return window.innerWidth < 600;
