@@ -112,9 +112,16 @@
 {% endblock %}
 
 {% block vue_body %}
+{% include 'layout/jhLayout.html' %}
+{% include 'common/resetTableMaxHeight.html' %}
 
 <script type="module">
-  window.registerData({
+new Vue({
+  el: '#app',
+  template: '#app-template',
+  vuetify: new Vuetify(),
+  mixins: [window.jianghuMixins],
+  data: {
     // 表格相关数据
     isFormValid: true,
     requireRules: [
@@ -153,18 +160,7 @@
     ],
 
     editItem: {},
-  })
-</script>
-{% include 'layout/jhLayout.html' %}
-{% include 'common/resetTableMaxHeight.html' %}
-
-<script type="module">
-new Vue({
-  el: '#app',
-  template: '#app-template',
-  vuetify: new Vuetify(),
-  mixins: [window.jianghuMixins],
-  data: () => window.vueData,
+  },
   computed: {
     isMobile() {
       return window.innerWidth < 600;
