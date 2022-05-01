@@ -54,6 +54,7 @@
 
   <!-- 编辑抽屉 -->
   <v-navigation-drawer v-model="isEditDrawerShow" absolute temporary right width="80%" hide-overlay
+    v-click-outside="{ closeConditional: () => !dialogIsOpen(), }"
                        class="elevation-24">
     <v-form v-model="isFormValid" v-if="isEditDrawerShow" ref="form" lazy-validation>
       <v-row>
@@ -65,7 +66,7 @@
       </v-row>
       <v-row class="pa-0 ma-0 pa-xs-4 pb-xs-4 flex-none">
         <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
-          <v-text-field class="cus-v-input mr-2" disabled dense outlined label="学生ID 后端生成" v-model="editItem.studentId"></v-text-field>
+          <v-text-field class="cus-v-input mr-2" dense outlined label="学生ID 后端生成" v-model="editItem.studentId"></v-text-field>
         </v-col>
         <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
           <v-select class="cus-v-input mr-2" dense outlined clearable label="班级ID" v-model="editItem.classId" :items="constantCollection.classId" :rules="requireRules"></v-select>
@@ -109,7 +110,6 @@
 {% endblock %}
 {% block vue_body %}
 
-{% include 'common/uiAction.html' %}
 <script type="module">
   window.registerData({
     // 表格相关数据
@@ -299,6 +299,9 @@ new Vue({
         return constantCollectionItemFind.text;
       }
       return _value;
+    },
+    dialogIsOpen() {
+      return window.dialogIsOpen;
     }
   }
 })
