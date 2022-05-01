@@ -78,7 +78,7 @@
                      class="elevation-24">
   <v-form v-model="isFormValid" v-if="isEditDrawerShow" ref="form" lazy-validation>
     <v-row>
-      <span class="title pa-6">{{ currentClickButton.title }}信息</span>
+      <span class="title pa-6">{{ editItem.id ? "修改" : "新增" }}信息</span>
       <v-spacer></v-spacer>
       <v-btn class="mt-7 mr-8 elevation-0" fab x-small @click="isEditDrawerShow = false">
         <v-icon dark>mdi-close</v-icon>
@@ -175,7 +175,6 @@
       {text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed'},
     ],
 
-    currentClickButton: {title: '新增', action: 'add'},
     editItem: {},
     dialogSaveInfoAction: ''
   })
@@ -249,7 +248,6 @@ new Vue({
     },
 
     async openCreateDialog() {
-      this.currentClickButton = {action: 'add', title: '新增'};
       this.isEditDrawerShow = true;
       this.dialogSaveInfoAction = 'createItem';
     },
@@ -282,7 +280,6 @@ new Vue({
     },
 
     async openUpdateDialog() {
-      this.currentClickButton = {action: 'edit', title: '修改'};
       this.isEditDrawerShow = true;
       this.dialogSaveInfoAction = 'updateItem';
     },
