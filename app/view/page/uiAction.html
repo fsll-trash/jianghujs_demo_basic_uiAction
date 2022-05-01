@@ -44,7 +44,8 @@
   </v-container>
 
   <v-navigation-drawer v-model="isCreateDrawerShow" absolute temporary right width="80%" hide-overlay
-                       class="elevation-24">
+    v-click-outside="{ closeConditional: () => !dialogIsOpen(), }"
+    class="elevation-24">
     <v-form v-model="isFormValid" v-if="isCreateDrawerShow" ref="form" lazy-validation>
       <v-row>
         <span class="title pa-6">新增</span>
@@ -95,7 +96,8 @@
   </v-navigation-drawer>
 
   <v-navigation-drawer v-model="isUpdateDrawerShow" absolute temporary right width="80%" hide-overlay
-                       class="elevation-24">
+    v-click-outside="{ closeConditional: () => !dialogIsOpen(), }"
+    class="elevation-24">
     <v-form v-model="isFormValid" v-if="isUpdateDrawerShow" ref="form" lazy-validation>
       <v-row>
         <span class="title pa-6">修改</span>
@@ -314,6 +316,9 @@ new Vue({
     // ====================================Update End===========================================
 
 
+    dialogIsOpen() {
+      return window.dialogIsOpen;
+    },
   }
 })
 </script>

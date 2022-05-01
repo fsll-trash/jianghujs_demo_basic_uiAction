@@ -62,7 +62,8 @@
 
   <!-- 编辑抽屉 -->
   <v-navigation-drawer v-model="isEditDrawerShow" absolute temporary right width="80%" hide-overlay
-                       class="elevation-24">
+    v-click-outside="{ closeConditional: () => !dialogIsOpen(), }"
+    class="elevation-24">
     <v-form v-model="isFormValid" v-if="isEditDrawerShow" ref="form" lazy-validation>
       <v-row>
         <span class="title pa-6">{{ editItem.id ? "修改" : "新增" }}信息</span>
@@ -309,7 +310,10 @@ new Vue({
         return constantCollectionItemFind.text;
       }
       return _value;
-    }
+    },
+    dialogIsOpen() {
+      return window.dialogIsOpen;
+    },
   }
 })
 </script>
