@@ -1,0 +1,97 @@
+<!--uiAction.html start-->
+<!-- 注入 ui action 数据到页面中 -->
+<script>
+  const excudeTimeout = async (timeout) => {
+    await new Promise((resolve, reject) => {
+      setTimeout(()=> {
+        resolve();
+      }, timeout)
+    });
+  }
+  (function () {
+  
+    const uiActionList = <$ uiActionList | dump | safe $>;
+    const uiActionMap = {};
+    uiActionList.forEach(({uiActionId, uiActionConfig}) => {
+      const {before = [], main = [],  after = []} = uiActionConfig;
+      uiActionMap[uiActionId] = [
+        ...before,
+        ...main,
+        ...after,
+      ]
+    });
+  
+    window.uiActionMap = uiActionMap;
+    window.$vueComponent = {};
+    window.vueComputed = {}
+    window.vueData = {};
+  
+    window.registerData = (data, computed) => {
+      Object.assign(window.vueData, data)
+      Object.assign(window.vueComputed, computed)
+    }
+  
+    const checkIsFunction = (obj) => {
+      if (!obj) {
+        throw new Error('方法不存在');
+      }
+      if (typeof(obj) !== 'function') {
+        throw new Error('目标不是可执行方法');
+      }
+    }
+
+    window.jianghuMixins = {
+      beforeCreate() {
+        if(this.$options.vueComponent) {
+          window.$vueComponent[this.$options.vueComponent] = this;
+        } else if (this instanceof Vue){
+          window.$vueComponent['page'] = this;
+        }
+        Object.assign(window.vueData, this.$options.jhData)
+      },
+      methods: {
+        async doUiAction(actionName, paramObj) {
+          const actions = window.uiActionMap[actionName];
+          if (actions) {
+            for (let i = 0; i < actions.length; i++) {
+              const action = actions[i];
+              const param = { ...(action.defaultParamObj || {}), ...(paramObj || {}) };
+              try {
+                let res = null;
+                if (action.vueComponent) {
+                  for (let index = 0; index < 15; index++) {
+                    if (window.$vueComponent[action.vueComponent]) {
+                      checkIsFunction(window.$vueComponent[action.vueComponent][action.function]);
+                      res = await window.$vueComponent[action.vueComponent][action.function](param);
+                      break;
+                    }
+                    await excudeTimeout(150);
+                    if (index === 14) {
+                      checkIsFunction(window.$vueComponent[action.vueComponent][action.function]);
+                      res = await window.$vueComponent[action.vueComponent][action.function](param);
+                    }
+                  }
+                } else {
+                  checkIsFunction(this[action.function]);
+                  res = await this[action.function](param);
+                }
+                // 如果返回 false 则不往下执行 action
+                // 例如: confirmDailog false
+                if (res === false) {
+                  return;
+                }
+              } catch (error) {
+                console.error(`action 异常, actionId: ${actionName}, vueComponent: ${action.vueComponent}, function: ${action.function}`, error)
+              }
+            }
+          } else {
+            console.warn(`找不到对应的 ui action, actionId: ${actionName}`)
+          }
+        },
+      }
+    };
+  
+  })();
+  </script>
+  <!--uiAction.html end-->
+  
