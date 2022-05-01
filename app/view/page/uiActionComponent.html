@@ -207,7 +207,6 @@ new Vue({
   },
   methods: {
 
-    // refreshTableData
     async refreshTableData() {
       this.isTableLoading = true;
       const result = await window.jianghuAxios({
@@ -226,22 +225,18 @@ new Vue({
       this.isTableLoading = false;
     },
 
-    // startCreateItem
     async clearItemData() {
       this.editItem = {};
     },
 
-    // startCreateItem
     async openCreateDialog() {
       this.isEditDrawerShow = true;
     },
 
-    // createItem
     async prepareCreateItem() {
       delete this.editItem.id;
     },
 
-    // createItem
     async doCreateItem() {
       await window.vtoast.loading("新增学生");
       await window.jianghuAxios({
@@ -256,23 +251,19 @@ new Vue({
       await window.vtoast.success("新增学生成功");
     },
 
-    // createItem/updateItem
     async closeDrawerShow() {
       this.isEditDrawerShow = false;
     },
 
-    // startUpdateItem
     async prepareItemData(item) {
       this.editItem = { ...item };
     },
 
-    // startUpdateItem
     async openUpdateDialog({ item }) {
       this.isEditDrawerShow = true;
       this.editItem = item;
     },
 
-    // updateItem
     async doUpdateItem() {
       const {id, ...actionData} = this.editItem;
       await window.vtoast.loading("修改学生");
@@ -289,12 +280,10 @@ new Vue({
       await window.vtoast.success("修改学生成功");
     },
 
-    // deleteItem
     async confirmDeleteItemDialog() {
       return await window.confirmDialog({ title: "删除", content: "确定删除吗？" });
     },
 
-    // deleteItem
     async doDeleteItem() {
       const {id} = this.editItem;
       await window.vtoast.loading("删除学生");
@@ -313,7 +302,7 @@ new Vue({
 
     getConstantCollectionItemText(key, _value) {
       const constantCollectionItemFind = this.constantCollection[key].find(
-              ({ value }) => value === _value
+        ({ value }) => value === _value
       );
       if (constantCollectionItemFind) {
         return constantCollectionItemFind.text;
