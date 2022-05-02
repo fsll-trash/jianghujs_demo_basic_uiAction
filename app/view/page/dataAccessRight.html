@@ -6,23 +6,21 @@
 
   <!-- 页面主要内容 -->
   <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+    <div>
+      <span class="red">备注: 需要为当前用户创建一条学生数据, 用户只能看到自己所在班级的数据。</span>
+    </div>
     <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
       <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
         <v-btn color="success" small dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem', null)">新增</v-btn>
         <span class="body-2">共{{ tableData.length }}条记录</span>
-        <span class="red">用户只能看到自己所在班级的数据</span>
       </v-col>
 
       <v-spacer></v-spacer>
 
-      <v-col cols="12" xs="8" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex pl-0">
-        <v-select class="cus-v-input mr-2" v-model="currentTableGenderType" :items="[{value: 'all', text: '全部'}, ...constantCollection.gender]"
-                  prefix="性别：" dense item-text="text" item-value="value" dense outlined></v-select>
-      </v-col>
+      <v-select style="max-width: 200px;" class="cus-v-input mr-2" v-model="currentTableGenderType" :items="[{value: 'all', text: '全部'}, ...constantCollection.gender]"
+        prefix="性别：" dense item-text="text" item-value="value" dense outlined></v-select>
 
-      <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
-        <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense outlined></v-text-field>
-      </v-col>
+      <v-text-field style="max-width: 200px;" v-model="searchInput" label="表格过滤" class="cus-v-input" dense outlined></v-text-field>
 
     </v-row>
     <v-data-table fixed-header
