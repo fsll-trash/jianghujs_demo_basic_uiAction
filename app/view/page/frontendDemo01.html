@@ -70,10 +70,15 @@
         <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
           <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
             <v-btn color="success" small dark class="elevation-0 mr-2" @click="openEditDialog({ item: {} })">新增</v-btn>
-            <span class="body-2">共{{ tableDataFromBackend.length }}条记录</span>
+            <span class="body-2">共{{ tableData.length }}条记录</span>
           </v-col>
 
           <v-spacer></v-spacer>
+
+          <v-col cols="12" xs="8" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex pl-0">
+            <v-select class="cus-v-input mr-2" v-model="currentTableGenderType" :items="[{value: 'all', text: '全部'}, ...constantCollection.gender]"
+                      prefix="性别：" dense item-text="text" item-value="value" dense outlined></v-select>
+          </v-col>
 
           <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
             <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense outlined></v-text-field>
@@ -82,7 +87,7 @@
         </v-row>
         <v-data-table fixed-header
                       :headers="headers"
-                      :items="tableDataFromBackend"
+                      :items="tableData"
                       :search="searchInput"
                       :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
                       :items-per-page="20"
@@ -106,9 +111,9 @@
         class="elevation-24">
         <v-form v-model="isFormValid" v-if="isEditDrawerShow" ref="form" lazy-validation>
           <v-row>
-            <span class="title pa-6">新增</span>
+            <span class="title pa-6">{{ currentClickButton.title }}信息</span>
             <v-spacer></v-spacer>
-            <v-btn class="mt-7 mr-8 elevation-0" fab x-small @click="isCreateDrawerShow = false">
+            <v-btn class="mt-7 mr-8 elevation-0" fab x-small @click="isEditDrawerShow = false">
               <v-icon dark>mdi-close</v-icon>
             </v-btn>
           </v-row>
@@ -117,16 +122,16 @@
               <v-text-field class="cus-v-input mr-2" dense outlined label="学生ID" v-model="editItem.studentId" :rules="requireRules"></v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
-              <v-text-field class="cus-v-input mr-2" dense outlined label="班级ID" v-model="editItem.classId"></v-text-field>
+              <v-select class="cus-v-input mr-2" dense outlined clearable label="班级ID" v-model="editItem.classId" :items="constantCollection.classId"></v-select>
             </v-col>
             <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
               <v-text-field class="cus-v-input mr-2" dense outlined label="学生名字" v-model="editItem.name"></v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
-              <v-text-field class="cus-v-input mr-2" dense outlined label="年级" v-model="editItem.level"></v-text-field>
+              <v-select class="cus-v-input mr-2" dense outlined clearable label="年级" v-model="editItem.level" :items="constantCollection.level"></v-select>
             </v-col>
             <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
-              <v-text-field class="cus-v-input mr-2" dense outlined label="性别" v-model="editItem.gender"></v-text-field>
+              <v-select class="cus-v-input mr-2" dense outlined clearable label="性别" v-model="editItem.gender" :items="constantCollection.gender"></v-select>
             </v-col>
             <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
               <v-menu class="cus-v-input mr-2" offset-y max-width="290">
@@ -140,15 +145,16 @@
               <v-text-field class="cus-v-input mr-2" dense outlined label="身高" v-model="editItem.bodyHeight"></v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
-              <v-text-field class="cus-v-input mr-2" dense outlined label="学生状态" v-model="editItem.studentStatus"></v-text-field>
+              <v-select class="cus-v-input mr-2" dense outlined clearable label="学生状态" v-model="editItem.studentStatus" :items="constantCollection.studentStatus"></v-select>
             </v-col>
             <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
               <v-text-field class="cus-v-input mr-2" dense outlined label="备注" v-model="editItem.remarks"></v-text-field>
             </v-col>
           </v-row>
           <v-row class="justify-end pr-6">
-            <v-btn class="ml-2 success" small @click="doUiAction('createItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">新增</v-btn>
-            <v-btn class="ml-2" small @click="isCreateDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
+            <v-btn v-if="editItem.id" color="success" small @click="updateStudent" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">修改</v-btn>
+            <v-btn v-if="!editItem.id" color="success" small @click="insertStudent" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">创建</v-btn>
+            <v-btn class="ml-2" small @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
           </v-row>
         </v-form>
       </v-navigation-drawer>
@@ -177,6 +183,22 @@
 
       // 表格相关数据
       isFormValid: true,
+      requireRules: [
+        v => !!v || 'This is required',
+      ],
+      constantCollection: {
+        gender: [{"value": "male", "text": "男"}, {"value": "female", "text": "女"}],
+        classId: [
+          {"value": "2021-01级-01班", "text": "2021-01级-01班"}, {"value": "2021-01级-02班", "text": "2021-01级-02班"},
+          {"value": "2021-02级-01班", "text": "2021-02级-01班"}, {"value": "2021-02级-02班", "text": "2021-02级-02班"},
+          {"value": "2021-03级-01班", "text": "2021-03级-01班"}, {"value": "2021-03级-02班", "text": "2021-03级-02班"}
+        ],
+        level: [{"value": "01", "text": "一年级"}, {"value": "02", "text": "二年级"}, {"value": "03", "text": "三年级"}],
+        icType: [{"value": "身份证", "text": "身份证"}, {"value": "护照", "text": "护照"}],
+        enrollmentType: [{"value": "正常升学", "text": "正常升学"}, {"value": "借读", "text": "借读"}],
+        studentStatus: [{"value": "正常", "text": "正常"}, {"value": "退学", "text": "退学"}]
+      },
+      currentTableGenderType: 'all',
       isEditDrawerShow: false,
       searchInput: null,
       isTableLoading: true,
@@ -197,12 +219,21 @@
       ],
 
       currentClickButton: {title: '新增', action: 'add'},
-      // TODO: createItem updateItem
       editItem: {},
+      tableButtonList: [
+        {text: '修改', buttonType: 'edit', color: 'success',},
+        {text: '删除', buttonType: 'delete', color: 'error',},
+      ],
     },
     computed: {
       isMobile() {
         return window.innerWidth < 600;
+      },
+      tableData() {
+        if (!this.currentTableGenderType || this.currentTableGenderType === 'all') {
+          return this.tableDataFromBackend;
+        }
+        return this.tableDataFromBackend.filter(({gender}) => gender === this.currentTableGenderType);
       },
     },
     watch: {},
@@ -243,6 +274,10 @@
         this.editItem = item;
         this.isEditDrawerShow = true;
       },
+      // createItem
+      prepareValidate() {
+        if (!this.$refs.form.validate()) return false;
+      },
       /**
        * 删除学生
        */
@@ -265,13 +300,13 @@
             }
           }
         });
-        alert("删除成功");
         await this.getTableData();
       },
       /**
        * 新增学生
        */
       async insertStudent() {
+        if (!this.prepareValidate()) return false
         const { id, ...actionData } = this.editItem;
         await axios({
           method: 'post',
@@ -289,7 +324,6 @@
             }
           }
         })
-        alert("保存成功");
         this.isEditDrawerShow = false;
         await this.getTableData();
       },
@@ -297,6 +331,7 @@
        * 保存学生
        */
       async updateStudent() {
+        if (!this.prepareValidate()) return
         const { id, ...actionData } = this.editItem;
         await axios({
           method: 'post',
@@ -315,7 +350,6 @@
             }
           }
         })
-        alert("修改成功");
         this.isEditDrawerShow = false;
         await this.getTableData();
       },

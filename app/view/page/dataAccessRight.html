@@ -258,6 +258,11 @@ new Vue({
       this.dialogSaveInfoAction = 'createItem';
     },
 
+    // createItem
+    async prepareValidate() {
+      if (!this.$refs.form.validate()) return false;
+    },
+
     async confirmCreateItemDialog() {
       return window.confirmDialog({ title: '新增', content: '确定新增吗？'});
     },
