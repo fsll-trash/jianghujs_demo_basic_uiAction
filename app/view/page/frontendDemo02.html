@@ -201,6 +201,11 @@ new Vue({
       this.isTableLoading = false;
     },
 
+    // validate
+    prepareValidate() {
+      if (!this.$refs.form.validate()) return false;
+    },
+
     /**
      * 点击表格数据按钮
      */
@@ -250,6 +255,7 @@ new Vue({
      * 保存数据
      */
     async saveInfo() {
+      if (!this.prepareValidate()) return false
       if (this.currentClickButton.action === 'add') {
         await this.insertStudent();
       }

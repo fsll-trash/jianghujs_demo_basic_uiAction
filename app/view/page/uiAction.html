@@ -225,12 +225,16 @@ new Vue({
     async clearCreateForm() {
       this.createItem = {};
     },
+    // validate
+    prepareValidate() {
+      if (!this.$refs.form.validate()) return false;
+    },
     async openCreateDrawer() {
       this.isCreateDrawerShow = true;
     },
     async prepareCreateItem() {
       delete this.createItem.id;
-    },    
+    },
     async confirmCreateFormDialog() {
       // retrun false 会中断后面的 uiAction function
       return await window.confirmDialog({ title: "新增", content: "确定新增吗？" });
@@ -267,7 +271,7 @@ new Vue({
     async confirmUpdateItemDialog() {
       // retrun false 会中断后面的 uiAction function
       return await window.confirmDialog({ title: "修改", content: "确定修改吗？" });
-    },    
+    },
     async doUpdateItem() {
       const {id, ...actionData} = this.updateItem;
         await window.vtoast.loading("修改学生");

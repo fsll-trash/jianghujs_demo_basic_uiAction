@@ -16,7 +16,7 @@
       <v-spacer></v-spacer>
 
 
-      
+
       <v-col cols="12" xs="8" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex pl-0">
         <classSelectDialog />
       </v-col>
@@ -229,6 +229,11 @@ new Vue({
 
     async clearItemData() {
       this.editItem = {};
+    },
+
+    // validate
+    prepareValidate() {
+      if (!this.$refs.form.validate()) return false;
     },
 
     async openCreateDialog() {
