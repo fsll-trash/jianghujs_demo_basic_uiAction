@@ -274,10 +274,6 @@
         this.editItem = item;
         this.isEditDrawerShow = true;
       },
-      // validate
-      prepareValidate() {
-        return this.$refs.form.validate();
-      },
       /**
        * 删除学生
        */
@@ -306,7 +302,7 @@
        * 新增学生
        */
       async insertStudent() {
-        if (!this.prepareValidate()) return false
+        if (!this.$refs.form.validate()) return false;
         const { id, ...actionData } = this.editItem;
         await axios({
           method: 'post',
@@ -331,7 +327,7 @@
        * 保存学生
        */
       async updateStudent() {
-        if (!this.prepareValidate()) return
+        if (!this.$refs.form.validate()) return false;
         const { id, ...actionData } = this.editItem;
         await axios({
           method: 'post',
