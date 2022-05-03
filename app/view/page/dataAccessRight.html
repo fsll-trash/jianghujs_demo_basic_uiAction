@@ -258,9 +258,9 @@ new Vue({
       this.dialogSaveInfoAction = 'createItem';
     },
 
-    // createItem
-    async prepareValidate() {
-      if (!this.$refs.form.validate()) return false;
+    // validate
+    prepareValidate() {
+      return this.$refs.form.validate();
     },
 
     async confirmCreateItemDialog() {

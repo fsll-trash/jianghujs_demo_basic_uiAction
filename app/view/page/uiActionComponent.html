@@ -233,7 +233,7 @@ new Vue({
 
     // validate
     prepareValidate() {
-      if (!this.$refs.form.validate()) return false;
+      return this.$refs.form.validate();
     },
 
     async openCreateDialog() {
@@ -262,13 +262,12 @@ new Vue({
       this.isEditDrawerShow = false;
     },
 
-    async prepareItemData(item) {
+    async prepareItemData({item}) {
       this.editItem = { ...item };
     },
 
-    async openUpdateDialog({ item }) {
+    async openUpdateDialog() {
       this.isEditDrawerShow = true;
-      this.editItem = item;
     },
 
     async doUpdateItem() {

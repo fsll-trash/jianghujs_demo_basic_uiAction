@@ -213,7 +213,6 @@ new Vue({
 
     // createItem
     async confirmCreateItemDialog() {
-      if (!this.$refs.form.validate()) return false;
       return await window.confirmDialog({ title: "新增", content: "确定新增吗？" });
     },
 
@@ -249,9 +248,13 @@ new Vue({
       this.dialogSaveInfoAction = "updateItem";
     },
 
+    // validate
+    prepareValidate() {
+      return this.$refs.form.validate();
+    },
+
     // createItem
     async confirmUpdateItemDialog() {
-      if (!this.$refs.form.validate()) return false;
       return await window.confirmDialog({ title: "修改", content: "确定修改吗？" });
     },
 

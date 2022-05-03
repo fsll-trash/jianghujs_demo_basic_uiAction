@@ -276,7 +276,7 @@
       },
       // validate
       prepareValidate() {
-        if (!this.$refs.form.validate()) return false;
+        return this.$refs.form.validate();
       },
       /**
        * 删除学生

@@ -247,6 +247,11 @@ new Vue({
       this.editItem = {};
     },
 
+    // validate
+    prepareValidate() {
+      return this.$refs.form.validate();
+    },
+
     async openCreateDialog() {
       this.isEditDrawerShow = true;
       this.dialogSaveInfoAction = 'createItem';

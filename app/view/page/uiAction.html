@@ -227,7 +227,7 @@ new Vue({
     },
     // validate
     prepareValidate() {
-      if (!this.$refs.form.validate()) return false;
+      return this.$refs.form.validate();
     },
     async openCreateDrawer() {
       this.isCreateDrawerShow = true;
