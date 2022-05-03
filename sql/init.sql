@@ -162,7 +162,7 @@ CREATE TABLE `_record_history` (
   PRIMARY KEY (`id`),
   KEY `index_record_id` (`recordId`),
   KEY `index_table_action` (`table`, `operation`)
-) ENGINE = InnoDB AUTO_INCREMENT = 2124 COMMENT = '数据历史表';
+) ENGINE = InnoDB AUTO_INCREMENT = 2127 COMMENT = '数据历史表';
 
 
 
@@ -260,7 +260,7 @@ CREATE TABLE `_resource_request_log` (
   PRIMARY KEY (`id`),
   KEY `resourceId_index` (`resourceId`),
   KEY `packageId_index` (`packageId`)
-) ENGINE = InnoDB AUTO_INCREMENT = 3473 COMMENT = '文件表; 软删除未启用;';
+) ENGINE = InnoDB AUTO_INCREMENT = 3508 COMMENT = '文件表; 软删除未启用;';
 
 
 
@@ -320,9 +320,9 @@ CREATE TABLE `_ui` (
 
 INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (1,'uiAction','ui','refreshTableData','✅获取表格数据','{ \"main\": [{\"function\": \"refreshTableData\"}] }',NULL,'insert',NULL,NULL,NULL);
 INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (3,'uiAction','ui','startInsertItem','✅打开创建数据抽屉','{ \"main\": [{\"function\": \"clearCreateForm\"}, {\"function\": \"openCreateDrawer\"}] }',NULL,'insert',NULL,NULL,NULL);
-INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (4,'uiAction','ui','createItem','✅创建数据','{ \"before\": [{\"function\": \"prepareCreateItem\"}, {\"function\": \"confirmCreateFormDialog\"}], \"main\": [ {\"function\": \"doCreateItem\"}], \"after\": [{\"function\": \"closeCreateDrawer\"}, {\"function\": \"refreshTableData\"}] }',NULL,'insert',NULL,NULL,NULL);
+INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (4,'uiAction','ui','createItem','✅创建数据','{ \"before\": [{\"function\": \"prepareValidate\"}, {\"function\": \"prepareCreateItem\"}, {\"function\": \"confirmCreateFormDialog\"}], \"main\": [ {\"function\": \"doCreateItem\"}], \"after\": [{\"function\": \"closeCreateDrawer\"}, {\"function\": \"refreshTableData\"}] }',NULL,'insert',NULL,NULL,NULL);
 INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (5,'uiAction','ui','startUpdateItem','✅打开更新数据抽屉','{ \"main\": [{\"function\": \"fillUpdateForm\"}, {\"function\": \"openUpdateDrawer\"}] }',NULL,'insert',NULL,NULL,NULL);
-INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (6,'uiAction','ui','updateItem','✅更新数据','{ \"before\": [{\"function\": \"confirmUpdateItemDialog\"}], \"main\": [{\"function\": \"doUpdateItem\"}, {\"function\": \"refreshTableData\"}], \"after\": [{\"function\": \"closeUpdateDrawer\"}] }',NULL,'insert',NULL,NULL,NULL);
+INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (6,'uiAction','ui','updateItem','✅更新数据','{ \"before\": [{\"function\": \"prepareValidate\"}, {\"function\": \"confirmUpdateItemDialog\"}], \"main\": [{\"function\": \"doUpdateItem\"}, {\"function\": \"refreshTableData\"}], \"after\": [{\"function\": \"closeUpdateDrawer\"}] }',NULL,'insert',NULL,NULL,NULL);
 INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (7,'uiAction','ui','deleteItem','✅删除数据','{ \"before\": [{\"function\": \"confirmDeleteItemDialog\"}], \"main\": [ {\"function\": \"doDeleteItem\"}, {\"function\": \"refreshTableData\"}], \"after\": [] }',NULL,'insert',NULL,NULL,NULL);
 INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (11,'uiActionComponent','ui','refreshTableData','✅获取表格数据','{ \"before\": [{\"vueComponent\": \"classSelectDialog\", \"function\": \"selectItem\", \"functionParamObj\": { \"item\": { \"value\": \"2021-01级-01班\" } }}], \"main\": [{\"function\": \"refreshTableData\"}] }',NULL,'insert',NULL,NULL,NULL);
 INSERT INTO `_ui` (`id`,`pageId`,`uiActionType`,`uiActionId`,`desc`,`uiActionConfig`,`appDataSchema`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (13,'uiActionComponent','ui','startCreateItem','✅打开创建数据抽屉','{ \"main\": [{\"function\": \"clearItemData\"}, {\"function\": \"openCreateDialog\"}] }',NULL,'insert',NULL,NULL,NULL);
@@ -584,7 +584,7 @@ CREATE TABLE `student` (
   `operationAt` varchar(255) DEFAULT NULL COMMENT '操作时间; E.g: 2021-05-28T10:24:54+08:00 ',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `studentId` (`studentId`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 176;
+) ENGINE = InnoDB AUTO_INCREMENT = 178;
 
 
 # ------------------------------------------------------------
@@ -595,7 +595,7 @@ INSERT INTO `student` (`id`,`studentId`,`name`,`gender`,`dateOfBirth`,`classId`,
 INSERT INTO `student` (`id`,`studentId`,`name`,`gender`,`dateOfBirth`,`classId`,`level`,`bodyHeight`,`studentStatus`,`remarks`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (168,'100067','1111','male','2022-05-02','2021-01级-01班','01',NULL,NULL,NULL,'jhUpdate','admin','系统管理员','2022-05-01T23:38:23+08:00');
 INSERT INTO `student` (`id`,`studentId`,`name`,`gender`,`dateOfBirth`,`classId`,`level`,`bodyHeight`,`studentStatus`,`remarks`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (173,'121432','21434',NULL,NULL,'2021-01级-01班',NULL,NULL,NULL,NULL,'jhInsert','admin','系统管理员','2022-05-01T23:37:58+08:00');
 INSERT INTO `student` (`id`,`studentId`,`name`,`gender`,`dateOfBirth`,`classId`,`level`,`bodyHeight`,`studentStatus`,`remarks`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (174,'admin','系统管理员','male','2022-05-02','2021-01级-01班','01',NULL,NULL,NULL,'insert','admin','系统管理员','2022-05-02T12:25:51+08:00');
-INSERT INTO `student` (`id`,`studentId`,`name`,`gender`,`dateOfBirth`,`classId`,`level`,`bodyHeight`,`studentStatus`,`remarks`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (175,'1000221','221','male','2022-05-08','2021-01级-02班','01',NULL,NULL,NULL,'insert','admin','系统管理员','2022-05-02T12:26:18+08:00');
+INSERT INTO `student` (`id`,`studentId`,`name`,`gender`,`dateOfBirth`,`classId`,`level`,`bodyHeight`,`studentStatus`,`remarks`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) VALUES (175,'1000221','221','male','2022-05-08','2021-01级-02班','01',NULL,NULL,NULL,'jhUpdate','admin','系统管理员','2022-05-02T22:08:50+08:00');
 
 
 
