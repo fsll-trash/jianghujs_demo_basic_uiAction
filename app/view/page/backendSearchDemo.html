@@ -217,7 +217,7 @@ new Vue({
     async refreshTableData() {
       this.isTableLoading = true;
       const serverSearchInput = _.pickBy(this.serverSearchInput, value=> !!value);
-      const { data: { appData: { rows } } } = await window.jianghuAxios({
+      const rows = (await window.jianghuAxios({
         data: {
           appData: {
             pageId: 'backendSearchDemo',
@@ -228,7 +228,7 @@ new Vue({
             orderBy: [{column: 'operationAt', order: 'desc'}]
           }
         }
-      });
+      })).data.appData.resultData.rows;
       await window.jianghuAxios({
         data: {
           appData: {
