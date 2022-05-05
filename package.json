@@ -10,7 +10,7 @@
   "dependencies": {
     "dayjs": "1.11.0",
     "egg": "^2.15.1",
-    "egg-jianghu": "1.2.8",
+    "egg-jianghu": "1.2.9",
     "egg-scripts": "^2.11.0",
     "lodash": "4.17.21",
     "md5-node": "^1.0.1"
