@@ -21,4 +21,3 @@ config/config.unittest.js
 upload/**
 multipartTmp/**
 .vscode
-.jhconfig
